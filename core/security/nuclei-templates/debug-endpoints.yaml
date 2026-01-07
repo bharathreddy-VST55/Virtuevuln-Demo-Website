@@ -1,0 +1,39 @@
+id: debug-endpoints
+
+info:
+  name: Debug Endpoints Exposure
+  author: Demon Slayers Training Lab
+  severity: medium
+  description: Detects exposed debug API endpoints
+  reference:
+    - https://owasp.org/www-community/vulnerabilities/Information_exposure_through_debug_information
+  tags: debug,api,endpoints,information-disclosure
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/api/debug/info"
+      - "{{BaseURL}}/api/debug/users"
+      - "{{BaseURL}}/api/debug"
+      - "{{BaseURL}}/debug/info"
+      - "{{BaseURL}}/debug/users"
+
+    matchers:
+      - type: word
+        words:
+          - "system"
+          - "environment"
+          - "env"
+          - "NODE_ENV"
+          - "database"
+          - "users"
+          - "statistics"
+        condition: or
+        part: body
+
+      - type: status
+        status:
+          - 200
+
+    matchers-condition: and
+

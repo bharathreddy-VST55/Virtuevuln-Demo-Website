@@ -1,0 +1,76 @@
+# Dockerfile for Dashboard and User Management Service
+FROM node:18-alpine
+
+WORKDIR /usr/src/app
+
+# Install dependencies
+RUN apk add --no-cache wget
+
+# Copy package files
+COPY backend/package*.json ./
+COPY frontend/package*.json ./frontend/
+
+# Install dependencies
+RUN npm ci --no-audit
+RUN npm ci --prefix=frontend --no-audit
+
+# Copy source files
+COPY backend/src ./src
+COPY backend/tsconfig*.json ./
+COPY backend/nest-cli*.json ./
+COPY frontend/src ./frontend/src
+COPY frontend/public ./frontend/public
+COPY frontend/typings ./frontend/typings
+COPY frontend/vcs ./frontend/vcs
+COPY frontend/tsconfig.json ./frontend/
+COPY frontend/vite.config.ts ./frontend/
+COPY frontend/index.html ./frontend/
+
+# Copy infrastructure files
+COPY core/config ./config
+COPY core/keycloak ./keycloak
+
+# Build backend
+RUN npm run build:fast
+
+# Build frontend
+RUN npm run build --prefix=frontend
+
+# Production stage
+FROM node:18-alpine
+
+WORKDIR /usr/src/app
+
+# Install production dependencies and build tools for native modules
+RUN apk add --no-cache wget python3 make g++
+
+# Copy package files
+COPY backend/package*.json ./
+
+# Install production dependencies
+# Temporarily disable prepare script to skip husky, then rebuild native modules
+RUN npm config set ignore-scripts false && \
+    npm ci --production --no-audit || \
+    (npm ci --production --no-audit --ignore-scripts && \
+     npm rebuild --production)
+
+# Copy built files from build stage
+COPY --from=0 /usr/src/app/dist ./dist
+COPY --from=0 /usr/src/app/frontend/dist ./frontend/dist
+COPY --from=0 /usr/src/app/frontend/vcs ./frontend/vcs
+COPY --from=0 /usr/src/app/config ./config
+COPY --from=0 /usr/src/app/keycloak ./keycloak
+
+# Create .env file
+RUN echo "NODE_ENV=production" > .env || true
+
+# Expose port
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=5s --timeout=30s --retries=10 \
+  CMD wget --spider -q http://localhost:3001/api/config || exit 1
+
+# Start the application
+CMD ["node", "dist/main.js"]
+

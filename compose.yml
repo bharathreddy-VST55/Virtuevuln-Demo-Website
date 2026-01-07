@@ -1,0 +1,128 @@
+services:
+  db:
+    image: 'postgres:17-alpine'
+    restart: always
+    healthcheck:
+      interval: 10s
+      retries: 10
+      test: ['CMD-SHELL', 'pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}']
+      timeout: 45s
+    environment:
+      POSTGRES_DB: bc
+      POSTGRES_USER: bc
+      POSTGRES_PASSWORD: bc
+    ports:
+      - '5432:5432'
+    volumes:
+      - './core/pg.sql:/docker-entrypoint-initdb.d/pg.sql'
+
+  keycloak-db:
+    image: 'postgres:17-alpine'
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+    healthcheck:
+      interval: 10s
+      retries: 10
+      test: ['CMD-SHELL', 'pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}']
+      timeout: 45s
+    restart: on-failure
+
+  keycloak:
+    image: 'quay.io/keycloak/keycloak:26.1.2'
+    volumes:
+      - './core/keycloak/imports/realm-export.json:/opt/keycloak/data/import/realm-export.json'
+    command: start-dev --import-realm
+    ports:
+      - '8080:8080'
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: Pa55w0rd
+      KC_HEALTH_ENABLED: true
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          "exec 3<>/dev/tcp/127.0.0.1/9000;echo -e \"GET /health/ready HTTP/1.1\r\nhost: 127.0.0.1:9000\r\nConnection: close\r\n\r\n\" >&3;grep \"HTTP/1.1 200 OK\" <&3"
+        ]
+      timeout: 10s
+      interval: 30s
+      retries: 10
+      start_period: 150s
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+
+  nodejs:
+    build:
+      context: .
+      dockerfile: core/Dockerfile
+    restart: always
+    healthcheck:
+      interval: 5s
+      retries: 10
+      test: ['CMD', 'wget', '--spider', '-q', 'http://nodejs:3000/api/config']
+      timeout: 30s
+    environment:
+      URL: http://localhost:3000
+      DATABASE_HOST: db
+      DATABASE_SCHEMA: bc
+      DATABASE_USER: bc
+      DATABASE_PASSWORD: bc
+      DATABASE_PORT: 5432
+      DATABASE_DEBUG: 'false'
+      NODE_ENV: production
+      JWT_PRIVATE_KEY_LOCATION: ./config/keys/jwtRS256.key
+      JWT_PUBLIC_KEY_LOCATION: ./config/keys/jwtRS256.key.pub
+      KEYCLOAK_SERVER_URI: http://keycloak:8080
+      KEYCLOAK_REALM: demon-slayers
+      KEYCLOAK_PUBLIC_CLIENT_ID: demon-slayers-client
+      KEYCLOAK_PUBLIC_CLIENT_SECRET: 4bfb5df6-4647-46dd-bad1-c8b8ffd7caf4
+      KEYCLOAK_ADMIN_CLIENT_ID: admin-cli
+      KEYCLOAK_ADMIN_CLIENT_SECRET: 3abff4a7-6649-4bae-a105-9bd1fb52a2cd
+      JWT_SECRET_KEY: '123'
+      JWK_PRIVATE_KEY_LOCATION: ./config/keys/jwk.key.pem
+      JWK_PUBLIC_KEY_LOCATION: ./config/keys/jwk.pub.key.pem
+      JWK_PUBLIC_JSON: ./config/keys/jwk.pub.json
+      JKU_URL: http://localhost:3000/api/auth/jku
+      X5U_URL: http://localhost:3000/api/auth/x5u
+      AWS_BUCKET: http://localhost:3000/api/storage
+      GOOGLE_MAPS_API: DEMON_SLAYERS_MAPS_API_KEY
+    ports:
+      - '3000:3000'
+    logging:
+      options:
+        max-file: '5'
+        max-size: '10m'
+    depends_on:
+      db:
+        condition: service_healthy
+      mailcatcher:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+
+  mailcatcher:
+    image: 'sj26/mailcatcher'
+    healthcheck:
+      interval: 10s
+      retries: 10
+      test: ['CMD', 'wget', '--spider', '-q', 'http://127.0.0.1:1080']
+      timeout: 45s
+    restart: always
+    ports:
+      - '1080:1080'
+      - '1025:1025'
+    logging:
+      options:
+        max-file: '5'
+        max-size: '10m'
+
+

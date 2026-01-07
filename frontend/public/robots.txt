@@ -1,0 +1,28 @@
+# https://www.robotstxt.org/robotstxt.html
+# Demon Slayers - Vulnerable Training Lab
+# This file contains information about the application structure for security testing purposes
+
+User-agent: *
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /swagger
+Disallow: /.git/
+Disallow: /.svn/
+Disallow: /.hg/
+
+# Allow public pages
+Allow: /
+Allow: /hashiras
+Allow: /demons
+Allow: /characters
+Allow: /shop
+
+# Information for security researchers
+# Admin endpoints: /api/users/admin/*
+# User endpoints: /api/users/*
+# File upload: /api/users/one/:email/photo
+# Debug endpoint: Check error responses for debug information
+# Database: PostgreSQL (exposed connection details in error messages)
+# Session secret: Check session cookie configuration
+# JWT tokens: RSA and HMAC types supported

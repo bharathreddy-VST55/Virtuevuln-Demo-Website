@@ -1,0 +1,37 @@
+id: user-search-information-leakage
+
+info:
+  name: User Search Information Leakage
+  author: Demon Slayers Training Lab
+  severity: medium
+  description: Detects information leakage in user search endpoints that expose debug information
+  reference:
+    - https://owasp.org/www-community/vulnerabilities/Information_exposure
+  tags: information-disclosure,debug,search,api
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/api/users/search?name=test"
+      - "{{BaseURL}}/api/users/search?name=admin"
+      - "{{BaseURL}}/api/users/search"
+
+    matchers:
+      - type: word
+        words:
+          - "debug"
+          - "searchQuery"
+          - "totalFound"
+          - "searchMethod"
+          - "sqlQuery"
+          - "SELECT"
+          - "FROM user"
+        condition: or
+        part: body
+
+      - type: status
+        status:
+          - 200
+
+    matchers-condition: and
+

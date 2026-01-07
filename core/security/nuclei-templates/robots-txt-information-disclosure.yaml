@@ -1,0 +1,43 @@
+id: robots-txt-information-disclosure
+
+info:
+  name: Information Disclosure via robots.txt
+  author: Demon Slayers Training Lab
+  severity: medium
+  description: Detects sensitive information exposed in robots.txt file
+  reference:
+    - https://owasp.org/www-community/vulnerabilities/Information_exposure
+  tags: robots.txt,information-disclosure,exposure
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/robots.txt"
+
+    matchers:
+      - type: word
+        words:
+          - "Disallow:"
+          - "Allow:"
+        condition: and
+        part: body
+
+      - type: word
+        words:
+          - "/api/"
+          - "/admin/"
+          - "/dashboard/"
+          - "Database"
+          - "Session Secret"
+          - "JWT"
+          - "debug"
+          - "upload"
+        condition: or
+        part: body
+
+      - type: status
+        status:
+          - 200
+
+    matchers-condition: and
+

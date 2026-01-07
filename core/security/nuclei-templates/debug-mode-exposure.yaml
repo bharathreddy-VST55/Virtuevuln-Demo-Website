@@ -1,0 +1,41 @@
+id: debug-mode-exposure
+
+info:
+  name: Debug Mode Information Disclosure
+  author: Demon Slayers Training Lab
+  severity: medium
+  description: Detects exposed debug pages that reveal sensitive information
+  reference:
+    - https://owasp.org/www-community/vulnerabilities/Information_exposure_through_debug_information
+  tags: debug,information-disclosure,exposure
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/debug"
+      - "{{BaseURL}}/debug/"
+      - "{{BaseURL}}/api/debug"
+      - "{{BaseURL}}/api/debug/info"
+      - "{{BaseURL}}/api/debug/users"
+      - "{{BaseURL}}/.env"
+      - "{{BaseURL}}/debug.php"
+      - "{{BaseURL}}/debug.html"
+
+    matchers:
+      - type: word
+        words:
+          - "DEBUG"
+          - "debug mode"
+          - "Environment Variables"
+          - "Stack Traces"
+          - "NODE_ENV"
+          - "development"
+        condition: or
+        part: body
+
+      - type: status
+        status:
+          - 200
+
+    matchers-condition: and
+

@@ -1,0 +1,30 @@
+{
+  "short_name": "Demon Slayers",
+  "name": "Demon Slayers - Vulnerable Training Lab",
+  "icons": [
+    {
+      "src": "assets/img/favicons/demon-slayer-logo.jpg",
+      "type": "image/jpeg",
+      "sizes": "16x16"
+    },
+    {
+      "src": "assets/img/favicons/demon-slayer-logo.jpg",
+      "type": "image/jpeg",
+      "sizes": "32x32"
+    },
+    {
+      "src": "assets/img/favicons/demon-slayer-logo.jpg",
+      "type": "image/jpeg",
+      "sizes": "96x96"
+    },
+    {
+      "src": "assets/img/favicons/demon-slayer-logo.jpg",
+      "type": "image/jpeg",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0B0B0C",
+  "background_color": "#0B0B0C"
+}

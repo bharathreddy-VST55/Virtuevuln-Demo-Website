@@ -1,0 +1,5 @@
+#!/bin/bash
+TIMESTAMP=$(date +%Y%m%d%H%M%S)
+GIT_SHA=$(echo $SOURCE_COMMIT | cut -b 1-6)
+docker tag $IMAGE_NAME $DOCKER_REPO:$SOURCE_BRANCH-$GIT_SHA-$TIMESTAMP
+docker push $DOCKER_REPO:$SOURCE_BRANCH-$GIT_SHA-$TIMESTAMP

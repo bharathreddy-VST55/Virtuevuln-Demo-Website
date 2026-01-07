@@ -1,0 +1,13 @@
+{
+  "testTimeout": 120000,
+  "setupFiles": ["dotenv/config"],
+  "rootDir": "src",
+  "testRegex": ".*\\.spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": ["@swc/jest"]
+  },
+  "collectCoverageFrom": ["**/*.(t|j)s"],
+  "coverageDirectory": "../coverage",
+  "testEnvironment": "node",
+  "maxWorkers": 1
+}

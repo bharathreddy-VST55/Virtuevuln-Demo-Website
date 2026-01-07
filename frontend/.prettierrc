@@ -1,0 +1,13 @@
+{
+  "tabWidth": 2,
+  "singleQuote": true,
+  "trailingComma": "none",
+  "overrides": [
+    {
+      "files": ["*.html", "*.md"],
+      "options": {
+        "printWidth": 120
+      }
+    }
+  ]
+}
