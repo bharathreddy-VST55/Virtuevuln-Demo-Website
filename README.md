@@ -93,27 +93,6 @@ Comprehensive documentation is available in the `docs/` directory:
 - **[Reproduction Steps](docs/REPRO_STEPS.md)** - Safe lab testing procedures for each vulnerability
 - **[Database Design](docs/DB_DESIGN.md)** - Current schema and recommended redesign
 
-## Running tests by [SecTester](https://github.com/NeuraLegion/sectester-js/)
-
-In the path [`./test`](./test) you can find tests to run with Jest.
-
-First, you have to get a [Bright API key](https://docs.brightsec.com/docs/manage-your-personal-account#manage-your-personal-api-keys-authentication-tokens), navigate to your [`.env`](.env) file, and paste your Bright API key as the value of the `BRIGHT_TOKEN` variable:
-
-```text
-BRIGHT_TOKEN=<your_API_key_here>
-```
-
-Then, you can modify a URL to your instance of the application by setting the `SEC_TESTER_TARGET` environment variable in your [`.env`](.env) file:
-
-```text
-SEC_TESTER_TARGET=http://localhost:3000
-```
-
-Finally, you can start tests with SecTester against these endpoints as follows:
-
-```bash
-npm run test:e2e
-```
 
 Full configuration & usage examples can be found in our [demo project](https://github.com/VirtuesTech/Virtuevulns);
 
