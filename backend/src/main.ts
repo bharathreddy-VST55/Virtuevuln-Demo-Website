@@ -37,8 +37,8 @@ const renderDirList: ListRender = (dirs, files) => {
           <td></td><td></td>
         </tr>
         ${dirs.map(
-          (dir) =>
-            `<tr>
+    (dir) =>
+      `<tr>
               <td>
                 <a href="${dir.href}">${dir.name}</a>
               </td>
@@ -49,11 +49,11 @@ const renderDirList: ListRender = (dirs, files) => {
                 -
               </td>
             </tr>`
-        )}
+  )}
         <br/>
         ${files.map(
-          (file) =>
-            `<tr>
+    (file) =>
+      `<tr>
               <td>
                 <a href="${file.href}">${file.name}</a>
               </td>
@@ -64,7 +64,7 @@ const renderDirList: ListRender = (dirs, files) => {
                 ${file.stats.size}
               </td>
             </tr>`
-        )}
+  )}
       </table>
       <hr>
     </body></html>
@@ -84,24 +84,24 @@ async function bootstrap() {
     onProtoPoisoning: 'ignore',
     https:
       process.env.NODE_ENV === 'production' &&
-      process.env.USE_HTTPS === 'true'
+        process.env.USE_HTTPS === 'true'
         ? (() => {
-            try {
-              return {
-                cert: readFileSync(
-                  '/etc/letsencrypt/live/demon-slayers.local/fullchain.pem'
-                ),
-                key: readFileSync(
-                  '/etc/letsencrypt/live/demon-slayers.local/privkey.pem'
-                )
-              };
-            } catch (err) {
-              console.warn(
-                'HTTPS certificates not found, falling back to HTTP'
-              );
-              return null;
-            }
-          })()
+          try {
+            return {
+              cert: readFileSync(
+                '/etc/letsencrypt/live/demon-slayers.local/fullchain.pem'
+              ),
+              key: readFileSync(
+                '/etc/letsencrypt/live/demon-slayers.local/privkey.pem'
+              )
+            };
+          } catch (err) {
+            console.warn(
+              'HTTPS certificates not found, falling back to HTTP'
+            );
+            return null;
+          }
+        })()
         : null
   });
 
@@ -127,7 +127,7 @@ nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
     // This is critical - Fastify normalizes ../ sequences, so we must check raw URL
     const rawUrl = request.raw.url || (request as any).url || '';
     const normalizedUrl = request.url || '';
-    
+
     // Try to decode URL (may fail if already decoded)
     let decodedUrl = rawUrl;
     try {
@@ -135,7 +135,7 @@ nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
     } catch (e) {
       decodedUrl = rawUrl;
     }
-    
+
     // Also check normalized URL in case raw URL is not available
     const urlToCheck = rawUrl || normalizedUrl;
 
@@ -160,15 +160,15 @@ nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
     // Check for traversal patterns in raw URL (before normalization)
     // Also check normalized URL in case it still contains patterns
     const hasTraversal = traversalPatterns.some(
-      pattern => pattern.test(rawUrl) || pattern.test(decodedUrl) || 
-                 pattern.test(normalizedUrl) || pattern.test(urlToCheck)
+      pattern => pattern.test(rawUrl) || pattern.test(decodedUrl) ||
+        pattern.test(normalizedUrl) || pattern.test(urlToCheck)
     );
 
     // Check if requesting /etc/passwd (case-insensitive)
     // Check both raw and normalized URLs, and also check if normalized URL is /etc/passwd
     // (Fastify normalizes ../../etc/passwd to /etc/passwd)
-    const isPasswdRequest = 
-      /passwd|etc[\/\\]passwd/gi.test(rawUrl) || 
+    const isPasswdRequest =
+      /passwd|etc[\/\\]passwd/gi.test(rawUrl) ||
       /passwd|etc[\/\\]passwd/gi.test(decodedUrl) ||
       /passwd|etc[\/\\]passwd/gi.test(normalizedUrl) ||
       /passwd|etc[\/\\]passwd/gi.test(urlToCheck) ||
@@ -183,7 +183,7 @@ nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
     // This catches cases like: /../../etc/passwd, /..%2F..%2Fetc%2Fpasswd, etc.
     const startsFromRoot = rawUrl.startsWith('/') || normalizedUrl.startsWith('/');
     const hasRootTraversal = startsFromRoot && (
-      rawUrl.match(/^\/\.\./i) || 
+      rawUrl.match(/^\/\.\./i) ||
       decodedUrl.match(/^\/\.\./i) ||
       normalizedUrl === '/etc/passwd' ||
       normalizedUrl.startsWith('/etc/')
@@ -192,11 +192,11 @@ nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
     // If traversal pattern detected AND requesting passwd, OR normalized URL is /etc/passwd,
     // OR root path with traversal to /etc/passwd, return fake content
     // Also check if normalized URL is exactly /etc/passwd (Fastify normalizes ../../etc/passwd to this)
-    if ((hasTraversal && isPasswdRequest) || 
-        normalizedUrl === '/etc/passwd' || 
-        normalizedUrl.toLowerCase() === '/etc/passwd' ||
-        (hasRootTraversal && isPasswdRequest) ||
-        (normalizedUrl && normalizedUrl.includes('passwd'))) {
+    if ((hasTraversal && isPasswdRequest) ||
+      normalizedUrl === '/etc/passwd' ||
+      normalizedUrl.toLowerCase() === '/etc/passwd' ||
+      (hasRootTraversal && isPasswdRequest) ||
+      (normalizedUrl && normalizedUrl.includes('passwd'))) {
       reply.header('Content-Type', 'text/plain');
       reply.header('Content-Length', FAKE_ETC_PASSWD.length.toString());
       reply.status(200);
@@ -251,21 +251,21 @@ nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
       const path = require('path');
       const credentialsPath = path.join(__dirname, '..', 'credentials.txt');
       const content = await fs.promises.readFile(credentialsPath, 'utf8');
-      
+
       // Remove header and warning lines from content
       const lines = content.split('\n');
       const filteredLines = lines.filter(line => {
         const trimmed = line.trim();
         // Filter out header, warnings, and notes
         return !trimmed.includes('Demon Slayers - Vulnerable Training Lab') &&
-               !trimmed.includes('===========================================') &&
-               !trimmed.includes('This file contains credentials for security testing purposes') &&
-               !trimmed.includes('WARNING: This is an intentional vulnerability') &&
-               !trimmed.includes('Note: This file is intentionally exposed') &&
-               !trimmed.includes('In a production environment') &&
-               !trimmed.includes('Error reading file:');
+          !trimmed.includes('===========================================') &&
+          !trimmed.includes('This file contains credentials for security testing purposes') &&
+          !trimmed.includes('WARNING: This is an intentional vulnerability') &&
+          !trimmed.includes('Note: This file is intentionally exposed') &&
+          !trimmed.includes('In a production environment') &&
+          !trimmed.includes('Error reading file:');
       });
-      
+
       reply.type('text/plain');
       reply.send(filteredLines.join('\n'));
     } catch (err) {
@@ -451,6 +451,12 @@ Demon Slayer Corps Account:
   const document = SwaggerModule.createDocument(app, options);
 
   SwaggerModule.setup('swagger', app, document);
+
+  // Add additional /swagger.json endpoint to serve the Swagger JSON
+  server.get('/swagger.json', async (request, reply) => {
+    reply.header('Content-Type', 'application/json');
+    reply.send(document);
+  });
 
   const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
   await app.listen(port, '0.0.0.0');
