@@ -95,6 +95,7 @@ services:
       X5U_URL: http://localhost:3000/api/auth/x5u
       AWS_BUCKET: http://localhost:3000/api/storage
       GOOGLE_MAPS_API: DEMON_SLAYERS_MAPS_API_KEY
+      ENABLE_TESTING_ENDPOINTS: 'true'
     ports:
       - '3000:3000'
     logging:

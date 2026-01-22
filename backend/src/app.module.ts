@@ -22,6 +22,7 @@ import { EmailModule } from './email/email.module';
 import { ChatModule } from './chat/chat.module';
 import { MissionsModule } from './missions/missions.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { TestingModule } from './testing/testing.module';
 
 @Module({
   imports: [
@@ -45,7 +46,8 @@ import { DashboardModule } from './dashboard/dashboard.module';
     EmailModule,
     ChatModule,
     MissionsModule,
-    DashboardModule
+    DashboardModule,
+    TestingModule
   ],
   controllers: [AppController],
   providers: [
